@@ -45,6 +45,8 @@ git add .
 git commit -m "Initial commit"
 git branch -M main
 git remote add origin "git@github.com:$USERNAME/$REPO_NAME.git"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/$USERNAME
 git push -u origin main
 
 echo "✅ Done! Repository '$REPO_NAME' created and pushed to GitHub."
