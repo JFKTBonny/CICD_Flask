@@ -1,34 +1,50 @@
 #!/bin/bash
-set -x
 
-# Set GitHub account details
-export GITHUB_USERNAME="JFKTBonny"
-export GITHUB_EMAIL_ADDRESS="jkamkotoyip@yahoo.com"
-export GITHUB_REPOSITORY_NAME="CICD_Flask"
+# Exit on any error
+set -e
 
-# Create GitHub repo only if it doesn't already exist
-if ! gh repo view "${GITHUB_USERNAME}/${GITHUB_REPOSITORY_NAME}" > /dev/null 2>&1; then
-  gh repo create "${GITHUB_REPOSITORY_NAME}" \
-      --public \
-      --description "CI/CD with ArgoCD, Helm and GitHub Actions" \
-      --source=. \
-      --remote=origin
-else
-  echo "Repository already exists on GitHub."
-  git remote add origin git@github.com:${GITHUB_USERNAME}/${GITHUB_REPOSITORY_NAME}.git 2>/dev/null || \
-  git remote set-url origin git@github.com:${GITHUB_USERNAME}/${GITHUB_REPOSITORY_NAME}.git
+# Function to check for dependencies
+check_dependencies() {
+  command -v gh >/dev/null 2>&1 || { echo >&2 "❌ GitHub CLI (gh) is not installed. Aborting."; exit 1; }
+  command -v git >/dev/null 2>&1 || { echo >&2 "❌ Git is not installed. Aborting."; exit 1; }
+  command -v jq >/dev/null 2>&1 || { echo >&2 "❌ jq is required but not installed. Install it and try again."; exit 1; }
+}
+
+# Run dependency check
+check_dependencies
+
+# Prompt for input
+read -p "🔹 Enter the name of your new GitHub repository: " REPO_NAME
+read -p "🔹 Enter a description (optional): " REPO_DESC
+read -p "🔹 Make repository public or private? (public/private): " VISIBILITY
+
+# Validate visibility
+if [[ "$VISIBILITY" != "public" && "$VISIBILITY" != "private" ]]; then
+  echo "❌ Invalid visibility option. Use 'public' or 'private'."
+  exit 1
 fi
 
-# Git setup in current directory
+# Check GitHub authentication
+if ! gh auth status >/dev/null 2>&1; then
+  echo "🔑 You need to authenticate with GitHub first."
+  gh auth login
+fi
+
+# Get GitHub username
+USERNAME=$(gh api user | jq -r .login)
+
+# Create repo on GitHub
+echo "🚀 Creating GitHub repo..."
+gh repo create "$USERNAME/$REPO_NAME" --description "$REPO_DESC" --"$VISIBILITY" --confirm
+
+# Initialize local repo and push
+echo "📁 Setting up local repository..."
 git init
-git config --global user.email "${GITHUB_EMAIL_ADDRESS}"
-git config --global user.name "${GITHUB_USERNAME}"
-
-# Download Python .gitignore file (if not already present)
-[ -f .gitignore ] || curl -o .gitignore https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
-
-# Commit and push to GitHub
+echo "# $REPO_NAME" > README.md
 git add .
-git commit -m "first commit"
+git commit -m "Initial commit"
 git branch -M main
+git remote add origin "git@github.com:$USERNAME/$REPO_NAME.git"
 git push -u origin main
+
+echo "✅ Done! Repository '$REPO_NAME' created and pushed to GitHub."
