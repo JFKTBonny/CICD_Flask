@@ -53,8 +53,8 @@ jobs:
             fi
           fi
           echo "NEW_TAG=$new_tag" >> $GITHUB_ENV
-      - name: Debug - Print Docker image tag
-        run: echo "${{ secrets.DOCKER_USERNAME }}/flask-app:${{ env.NEW_TAG }}"    
+      - name: Debug - Print Docker Username
+        run: echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}"    
 
       - name: Build Docker Image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ env.NEW_TAG }} -f app/Dockerfile app
