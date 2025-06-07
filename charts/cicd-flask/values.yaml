@@ -1,8 +1,8 @@
 replicaCount: 1
 image:
-  repository: eon01/ci-cd-with-argocd-helm-and-github-actions
+  repository: santonix/flask-app
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: "v1.0.0"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -19,7 +19,7 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
   hosts:
-    - host: flask.164.90.242.52.nip.io
+    - host: flask.${INGRESS_IP}.nip.io
       paths:
         - path: /tasks
           pathType: ImplementationSpecific
