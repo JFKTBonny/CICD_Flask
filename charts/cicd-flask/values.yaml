@@ -1,8 +1,8 @@
 replicaCount: 1
 image:
-  repository: santonix/flask-app
+  repository: ${DOCKER_USERNAME}/${DOCKER_REPOSITORY_NAME}
   pullPolicy: IfNotPresent
-  tag: "v1.0.0"
+  tag: "{{ .Values.imageTag }}"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -19,7 +19,7 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
   hosts:
-    - host: flask.${INGRESS_IP}.nip.io
+    - host: "flask.{{ .Values.ingressIp }}.nip.io"
       paths:
         - path: /tasks
           pathType: ImplementationSpecific

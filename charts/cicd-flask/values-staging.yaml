@@ -1,9 +1,9 @@
 # change the replica count to 3 here
 replicaCount: 3
 image:
-  repository: santonix/flask-app
+  repository: ${DOCKER_USERNAME}/${DOCKER_REPOSITORY_NAME}
   pullPolicy: IfNotPresent
-  tag: "v1.0.0"
+  tag: "{{ .Values.imageTag }}"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -20,7 +20,7 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
   hosts:
-    - host: flask.10.96.113.158.nip.io
+    - host: "flask.{{ .Values.ingressIp }}.nip.io"
       paths:
         - path: /tasks
           pathType: ImplementationSpecific
