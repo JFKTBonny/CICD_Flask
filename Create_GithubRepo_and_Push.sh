@@ -39,11 +39,13 @@ gh repo create "$USERNAME/$REPO_NAME" --description "$REPO_DESC" --"$VISIBILITY"
 
 # Initialize local repo and push
 echo "📁 Setting up local repository..."
+echo "# $REPO_NAME" >> README.md
 git init
-echo "# $REPO_NAME" > README.md
-git add .
+
+git add -A
 git commit -m "Initial commit"
 git branch -M main
+git remote remove origin 2>/dev/null || true
 git remote add origin "git@github.com:$USERNAME/$REPO_NAME.git"
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/$USERNAME
